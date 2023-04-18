@@ -13,11 +13,11 @@ public class Player {
     public int numberOfMissedKO;
     public int numberOfKO;
 
-    public Player(){
-        this.name = "[no name found]";
+    public Player(String name){
+        this.name = name;
         this.health = 100;
         this.hasBonusAction = false;
-        this.defense = 100;
+        this.defense = 0;
         this.strength = 0;
         this.numberOfAttacks = 0;
         this.numberOfDefends = 0;
@@ -39,7 +39,7 @@ public class Player {
         this.numberOfKO = 0;
     }
     //region functions
-    public void attack(Player Opponent){
+    public boolean attack(Player Opponent){
         Random random = new Random();
         int randInt = random.nextInt(1, 10 + this.strength);
         int damage = randInt - Opponent.defense;
@@ -50,7 +50,8 @@ public class Player {
         else{
             Opponent.health -= damage;
             if (Opponent.health <= 0){
-                win(this, Opponent);
+                win(this);
+                return true;
             }
             else {
                 System.out.println("Your opponent had " + Opponent.defense + " defense, so you dealt " +  damage +
@@ -58,10 +59,11 @@ public class Player {
             }
         }
         this.hasBonusAction = false;
+        return false;
     }
-    public void defense(){
+    public void defend(){
         Random random = new Random();
-        int softCap = random.nextInt(0, this.defense/5);
+        int softCap = random.nextInt(0, this.defense/5 + 1);
         int baseDefense = random.nextInt(1, 4) - softCap;
         if (baseDefense <= 0){
             System.out.println("You have reached the max defense!");
@@ -72,25 +74,28 @@ public class Player {
         }
         this.hasBonusAction = false;
     }
-    public void knockout(Player Opponent){
+    public boolean knockout(Player Opponent){
         Random random = new Random();
         int koChance= random.nextInt(1, 21);
         if (koChance == 1){
             Opponent.health = (Opponent.health/2) - 10;
+            System.out.println("You have successfully KO'd " + Opponent.name + ", they now have " + Opponent.health +
+                    " health left!");
             if (Opponent.health <= 0){
-                win(this, Opponent);
+                win(this);
+                return true;
             }
             else{
                 System.out.println("Your turn again, " + this.name + "!");
                 this.hasBonusAction = true;
             }
-            System.out.println("You have successfully KO'd " + Opponent.name + ", they now have " + Opponent.health +
-                    " health left!");
+
         }
         else {
             System.out.println("You missed!");
         }
         this.hasBonusAction = false;
+        return false;
     }
     public void train(){
         Random random = new Random();
@@ -99,7 +104,7 @@ public class Player {
         System.out.println("You have increased your strength by " + train + ", to " + this.strength);
         this.hasBonusAction = false;
     }
-    public void win(Player Winner, Player Loser){
+    public void win(Player Winner){
         double percentHit = Winner.numberOfKO/(Winner.numberOfMissedKO + Winner.numberOfKO);
         System.out.println("Congratulations, " + Winner.name + "! You won, here are your statistics...");
         System.out.println("-----------------");
